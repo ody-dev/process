@@ -44,12 +44,11 @@ class ProcessManager
      * Execute a process class
      *
      * @param string $processClass Fully qualified class name implementing ProcessInterface
-     * @param array $args Arguments to pass to the process
      * @param bool $daemon Run as daemon process
      * @return int Process ID
      * @throws ProcessException
      */
-    public static function execute(string $processClass, array $args = [], bool $daemon = false): int
+    public static function execute(string $processClass, bool $daemon = false): int
     {
         if (!class_exists($processClass)) {
             throw new ProcessException("Process class {$processClass} not found");
@@ -59,35 +58,26 @@ class ProcessManager
             throw new ProcessException("Process class {$processClass} must implement ProcessInterface");
         }
 
-        $process = new Process(function (Process $worker) use ($processClass, $args) {
+        $process = new Process(function (Process $worker) use ($processClass) {
             if (self::$config['enable_coroutine']) {
                 Coroutine::set(['hook_flags' => SWOOLE_HOOK_ALL]);
 
-                go(function () use ($processClass, $args, $worker) {
-                    var_dump("cid " . Coroutine::getCid());
-                    $instance = new $processClass($args, $worker);
+                go(function () use ($processClass, $worker) {
+                    $instance = new $processClass($worker);
                     $instance->handle();
                 });
             } else {
-                $instance = new $processClass($args, $worker);
+                $instance = new $processClass($worker);
                 $instance->handle();
             }
         }, false, SOCK_DGRAM, self::$config['enable_coroutine']);
 
-        $process->name("YourFramework: {$processClass}");
+        $process->name("YourFramework: {$processClass::getName()}");
         $pid = $process->start();
 
         if ($pid === false) {
             throw new ProcessException("Failed to start process {$processClass}");
         }
-
-        var_dump([
-            'pid' => $pid,
-            'name' => $processClass,
-            'status' => 1, // 1 = running
-            'started_at' => time(),
-            'memory' => 0,
-        ]);
 
         // Store process info in shared table
         self::$processTable->set((string)$pid, [
@@ -111,7 +101,6 @@ class ProcessManager
         }
 
         Process::kill($pid, $signal);
-
         self::$processTable->del((string)$pid);
 
         echo "Process killed {$pid}\n";

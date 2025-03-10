@@ -11,13 +11,13 @@ class Process
      * Execute a process
      *
      * @param string $processClass The fully qualified class name
-     * @param array $args Arguments to pass to the process
      * @param bool $daemon Run as daemon process
      * @return int Process ID
+     * @throws ProcessException
      */
-    public static function execute(string $processClass, array $args = [], bool $daemon = false): int
+    public static function execute(string $processClass, bool $daemon = false): int
     {
-        return ProcessManager::execute($processClass, $args, $daemon);
+        return ProcessManager::execute($processClass, $daemon);
     }
 
     /**

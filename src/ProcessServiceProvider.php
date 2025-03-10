@@ -17,8 +17,8 @@ class ProcessServiceProvider extends ServiceProvider
                 'enable_coroutine' => true,
             ]);
 
-            // Start your process
-            Process::execute(\App\Processes\SomeProcess::class, ['param1' => 'value1']);
+            $processes = config('process.processes');
+            array_walk($processes, fn ($process) => Process::execute($process));
         }
     }
 }
