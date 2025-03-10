@@ -15,9 +15,9 @@ class Process
      * @return int Process ID
      * @throws ProcessException
      */
-    public static function execute(string $processClass, bool $daemon = false): int
+    public static function execute(string $processClass, $args = [],  bool $daemon = false): int
     {
-        return ProcessManager::execute($processClass, $daemon);
+        return ProcessManager::execute($processClass, $args, $daemon);
     }
 
     /**

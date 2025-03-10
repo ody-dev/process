@@ -14,9 +14,9 @@ interface ProcessInterface
      * Process constructor
      *
      * @param array $args Arguments for the process
-     * @param \Process $worker The Swoole Process instance
+     * @param Process $worker The Swoole Process instance
      */
-    public function __construct(Process $worker);
+    public function __construct(array $args, Process $worker);
 
     /**
      * The main logic of the process
