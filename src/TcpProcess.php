@@ -113,7 +113,7 @@ class TcpProcess extends BaseProcess
             $this->handleClient($clientSocket);
 
             // Close the client socket
-            socket_close($clientSocket);
+//            socket_close($clientSocket);
         }
     }
 
@@ -124,9 +124,15 @@ class TcpProcess extends BaseProcess
      */
     protected function handleClient($clientSocket): void
     {
-        // Read from client
+        // Read from client with timeout
+        socket_set_option($clientSocket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 2, 'usec' => 0]);
+
         $data = '';
-        while ($buffer = socket_read($clientSocket, 8192)) {
+        while (true) {
+            $buffer = @socket_read($clientSocket, 8192);
+            if ($buffer === false || $buffer === '') {
+                break;
+            }
             $data .= $buffer;
         }
 
@@ -139,6 +145,9 @@ class TcpProcess extends BaseProcess
                 socket_write($clientSocket, $result, strlen($result));
             }
         }
+
+        // Ensure the socket is closed
+        socket_close($clientSocket);
     }
 
     /**

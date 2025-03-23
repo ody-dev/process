@@ -80,7 +80,7 @@ class ProcessManager
             }
         }, false, $socketType, self::$config['enable_coroutine']);
 
-        $process->name("YourFramework:{$processClass}");
+        $process->name("ODY:{$processClass}");
         $pid = $process->start();
 
         if ($pid === false) {
@@ -140,7 +140,7 @@ class ProcessManager
             }
         }, true, SOCK_STREAM, self::$config['enable_coroutine']);
 
-        $process->name("YourFramework:{$processClass}");
+        $process->name("ODY:{$processClass}");
         $pid = $process->start();
 
         if ($pid === false) {
