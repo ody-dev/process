@@ -9,9 +9,9 @@ use Swoole\Table;
 class ProcessManager
 {
     /**
-     * @var Table Shared memory table to track running processes
+     * @var Table|null Shared memory table to track running processes
      */
-    private static Table $processTable;
+    private static ?Table $processTable = null;
 
     /**
      * @var array Configuration for the process manager
@@ -52,6 +52,9 @@ class ProcessManager
      */
     public static function execute(string $processClass, array $args = [], bool $daemon = false): int
     {
+        if (self::$processTable === null) {
+            self::init();
+        }
         if (!class_exists($processClass)) {
             throw new ProcessException("Process class {$processClass} not found");
         }
